@@ -1,4 +1,5 @@
 import Konva from "konva";
+import { ShapeConfig } from "konva/lib/Shape";
 
 declare global {
     interface Window {asd: any;}
@@ -18,14 +19,14 @@ class Creator {
 
     private stage: Konva.Stage;
     private selectedLayer: Konva.Layer | undefined = undefined;
-    private selectedElement: Konva.Node | undefined = undefined;
+    private selectedElement: Konva.Node | Konva.Group | undefined = undefined;
     private uiUpdateInterface: Function;
 
     constructor(uiUpdateInterface: Function){
         this.stage = new Konva.Stage({
             container: 'container',
-            width: 200,
-            height: 200
+            width: this.sceneSize.width,
+            height: this.sceneSize.height
         });
         this.uiUpdateInterface = uiUpdateInterface;
         this.createLayerIfNotExists();
@@ -33,7 +34,18 @@ class Creator {
         window.asd = this.stage;
         this.stage.on('click', this.onClickStage);
         window.addEventListener('resize', this.fitStageIntoParentContainer);
-        //this.stage.content.addEventListener('resize', this.fitStageIntoParentContainer);
+    }
+
+    public centerSelectedElementOnStage = (): void => {
+        if(this.selectedElement && this.selectedElement.draggable()){
+            this.selectedElement.rotation(0);
+            this.selectedElement.x(
+                this.sceneSize.width/2 - this.selectedElement.width()/2 * this.selectedElement.scaleX()
+            );
+            this.selectedElement.y(
+                this.sceneSize.height/2 - this.selectedElement.height()/2 * this.selectedElement.scaleY()
+            );
+        }
     }
 
     public getLayers: Function = (): Array<Konva.Layer> => {
@@ -56,19 +68,18 @@ class Creator {
 
     public addImageLayer(src: any){
         return new Promise((resolve, reject) => {
-            let imgObject = new Image();
-            imgObject.onload = () => {
+            let imgHtml = new Image();
+            imgHtml.onload = () => {
+                let scale = this.getImageScaleForFitToStage(imgHtml);
                 let group = this.getKonvaGroup();
                 let image = new Konva.Image({
-                    scaleX: 0.5,
-                    scaleY: 0.5,
-                    x: 50,
-                    y: 50,
-                    image: imgObject,
+                    scaleX: scale,
+                    scaleY: scale,
+                    image: imgHtml,
                     draggable: true
                 });
                 let konvaTransformer = this.getKonvaTransformer(true);
-                image.setAttr('imageSrc', src);
+                image.setAttr('src', src);
                 image.setAttr('label', '');
                 image.setAttr('clientPhoto', false);
                 this.selectedElement = image;
@@ -79,13 +90,45 @@ class Creator {
                 group.moveToTop();
                 this.addShapeOnClickEvent(image);
                 this.hideNotSelectedTransformers();
+                this.centerSelectedElementOnStage();
                 resolve(true);
             }
             
             if(src)
-                imgObject.src = src;
+                imgHtml.src = src;
         });
 
+    }
+
+    private getImageScaleForFitToStage = (imageHtml: HTMLImageElement): number => {
+        if(imageHtml.width >= imageHtml.height)
+            return (this.stage.width()/this.stage.scaleX()) / imageHtml.width;
+        else
+            return (this.stage.height()/this.stage.scaleY()) / imageHtml.height;
+    }
+
+    public fitSelectedElementToStage = (): void => {
+        if(this.selectedElement && this.selectedElement.draggable()){
+            if(this.selectedElement.width() >= this.selectedElement.height()){
+                this.selectedElement.scaleX((this.stage.width()/this.stage.scaleX()) / this.selectedElement.width());
+                this.selectedElement.scaleY((this.stage.width()/this.stage.scaleX()) / this.selectedElement.width());
+            }else{
+                this.selectedElement.scaleX((this.stage.height()/this.stage.scaleY()) / this.selectedElement.height());
+                this.selectedElement.scaleY((this.stage.height()/this.stage.scaleY()) / this.selectedElement.height());
+            }
+            this.centerSelectedElementOnStage();
+        }
+    }
+
+    public lockElement = (elementId: number | string): void => {
+        let element: any = this.selectedLayer?.findOne(`#${elementId.toString()}`);
+        if(element){
+            let shapeChild = element.findOne('Shape');
+            shapeChild.draggable(!shapeChild.draggable());
+            let transformerChild = element.findOne('Transformer');
+            transformerChild.resizeEnabled(!transformerChild.resizeEnabled());
+            transformerChild.rotateEnabled(!transformerChild.rotateEnabled());
+        }
     }
 
     public getSelectedElementParams = (): object => {
@@ -95,10 +138,15 @@ class Creator {
             width = this.selectedElement.width() * this.selectedElement.scaleX();
             height = this.selectedElement.height() * this.selectedElement.scaleY();
         }
+        debugger;
         return {
             id: id,
             width: width,
-            height: height
+            height: height,
+            x: this.selectedElement?.x(),
+            y: this.selectedElement?.y(),
+            rotation: this.selectedElement?.rotation(),
+            draggable: this.selectedElement?.draggable(),
         }
     }
 
@@ -125,8 +173,8 @@ class Creator {
             hitStrokeWidth: 1,
             strokeScaleEnabled: false,
             shadowEnabled: false,
-
         });
+        rectangle.skewX(0);
         rectangle.setAttr('label', '');
         let konvaTransformer = this.getKonvaTransformer(false);
         this.selectedElement = rectangle;
@@ -137,6 +185,7 @@ class Creator {
         group.moveToTop();
         this.addShapeOnClickEvent(rectangle);
         this.hideNotSelectedTransformers();
+        this.centerSelectedElementOnStage();
     }
 
     public moveUpSelectedElement(): void {
@@ -174,7 +223,8 @@ class Creator {
                     })
                     childrenSortByZIndex[group.zIndex()] = {
                         type: children[0].getClassName(),
-                        id: group.id()
+                        id: group.id(),
+                        draggable: children[0].draggable()
                     };
                 });
             }

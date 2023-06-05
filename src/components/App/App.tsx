@@ -53,6 +53,16 @@ class App extends React.PureComponent{
     this.uiUpdate();
   }
 
+  onClickCenter = (event: React.SyntheticEvent): void => {
+    this.creator.centerSelectedElementOnStage();
+    this.uiUpdate();
+  }
+
+  onClickFitToStage = (event: React.SyntheticEvent): void => {
+    this.creator.fitSelectedElementToStage();
+    this.uiUpdate();
+  }
+
   onChangeElementLabel = (event: React.FormEvent<HTMLInputElement>): void => {
     let elementId = event.currentTarget.getAttribute('data-elementid');
     let value = event.currentTarget.value;
@@ -61,6 +71,16 @@ class App extends React.PureComponent{
         elementId.toString(),
         value.toString()
       );
+  }
+
+  onClickLockElement = (event: React.SyntheticEvent): void => {
+    let elementId = event.currentTarget.getAttribute('data-elementid');
+    if(elementId){
+      this.creator.lockElement(
+        elementId.toString()
+      );
+    }
+    this.uiUpdate();
   }
 
   render(): React.ReactNode {
@@ -79,9 +99,24 @@ class App extends React.PureComponent{
             Dodaj ramke
           </button>
           Właściwości obiektu:
+          <p>x: { this.state.selectedElementParams?.x }</p>
+          <p>y: { this.state.selectedElementParams?.y }</p>
+          <p>rotacja: { this.state.selectedElementParams?.rotation }</p>
           <p>Wysokość: { this.state.selectedElementParams?.width }</p>
           <p>Szerokość: { this.state.selectedElementParams?.height }</p>
         </div>
+        <button 
+          type='button'
+          onClick={this.onClickCenter}
+          className="px-4 py-1 text-sm text-purple-600 font-semibold rounded-full border border-purple-200 hover:text-white hover:bg-purple-600 hover:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-offset-2">
+          Wyśrodkuj
+        </button>
+        <button 
+          type='button'
+          onClick={this.onClickFitToStage}
+          className="px-4 py-1 text-sm text-purple-600 font-semibold rounded-full border border-purple-200 hover:text-white hover:bg-purple-600 hover:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-offset-2">
+          Dopasuj do sceny
+        </button>
         <button 
           type='button'
           onClick={this.onClickMoveUp}
@@ -105,11 +140,12 @@ class App extends React.PureComponent{
         <div className='flex flex-col'>
           Lista obiektów:
           { this.state.elements?.map((element: any) => {
+            debugger;
             return(
               <div
                 className={`${
                   this.state.selectedElementParams.id == element.id ?
-                  "px-4 py-1 text-sm text-purple-600 font-semibold border border-purple-200 hover:text-white hover:bg-purple-600 hover:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-offset-2" : 
+                  "px-4 py-1 text-sm text-purple-600 font-semibold border border-purple-200" : 
                   "px-4 py-1 text-sm text-purple-600 font-semibold"
                 }`}>
                 {element.type}-{element.id}-
@@ -117,7 +153,17 @@ class App extends React.PureComponent{
                   data-elementid={element.id.toString()}
                   onChange={this.onChangeElementLabel}
                   className='text-sm text-purple-600 font-semibold border border-purple-200'
-                  type='text'/>
+                  type='text'
+                  />
+                  -
+                <button
+                  data-elementid={element.id.toString()}
+                  className='focus:outline-none focus:ring focus:ring-violet-300'
+                  type='button'
+                  onClick={this.onClickLockElement}
+                  >
+                  { element.draggable === true ? 'Zablokuj' : 'Odblokuj' }  
+                  </button>
               </div>
             );
           }) }
