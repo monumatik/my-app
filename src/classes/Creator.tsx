@@ -1,5 +1,4 @@
 import Konva from "konva";
-import { ShapeConfig } from "konva/lib/Shape";
 
 declare global {
     interface Window {asd: any;}
