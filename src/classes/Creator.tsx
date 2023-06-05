@@ -130,14 +130,13 @@ class Creator {
         }
     }
 
-    public getSelectedElementParams = (): object => {
+    public getSelectedElementParams = (): any => {
         let id = 0, width = 0, height = 0;
         if(this.selectedElement){
             id = +this.selectedElement.getParent().id();
             width = this.selectedElement.width() * this.selectedElement.scaleX();
             height = this.selectedElement.height() * this.selectedElement.scaleY();
         }
-        debugger;
         return {
             id: id,
             width: width,
@@ -147,6 +146,31 @@ class Creator {
             rotation: this.selectedElement?.rotation(),
             draggable: this.selectedElement?.draggable(),
         }
+    }
+
+    public setSelectedElementX = (x: number): void => {
+        if(this.selectedElement?.draggable())
+            this.selectedElement?.x(x);
+    }
+
+    public setSelectedElementY = (y: number): void => {
+        if(this.selectedElement?.draggable())
+            this.selectedElement?.y(y);
+    }
+
+    public setSelectedElementWidth = (width: number): void => {
+        if(this.selectedElement?.draggable())
+            this.selectedElement?.width(width / this.selectedElement.scaleX());
+    }
+
+    public setSelectedElementHeight = (height: number): void => {
+        if(this.selectedElement?.draggable())
+            this.selectedElement?.height(height / this.selectedElement.scaleY());
+    }
+
+    public setSelectedElementRotation = (rotation: number): void => {
+        if(this.selectedElement?.draggable())
+            this.selectedElement?.rotation(rotation);
     }
 
     private createLayerIfNotExists(): void {

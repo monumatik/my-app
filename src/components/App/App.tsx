@@ -7,6 +7,11 @@ class App extends React.PureComponent{
   private creator: Creator;
 
   state: any = {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    rotation: 0,
     elements: [],
     selectedElementParams: {},
   };
@@ -17,8 +22,14 @@ class App extends React.PureComponent{
   }
 
   uiUpdate = (): void => {
+    let params = this.creator.getSelectedElementParams();
     this.setState({
-      selectedElementParams: this.creator.getSelectedElementParams(),
+      x: params.x,
+      y: params.y,
+      width: params.width,
+      height: params.height,
+      rotation: params.rotation,
+      selectedElementParams: params,
       elements: this.creator.getElementsList()
     });
   }
@@ -83,13 +94,62 @@ class App extends React.PureComponent{
     this.uiUpdate();
   }
 
+  onXChange = (event: React.FormEvent<HTMLInputElement>): void => {
+    debugger;
+    let x = event.currentTarget.value;
+    this.setState({
+      x: x
+    });
+    this.creator.setSelectedElementX(Number(x));
+    this.uiUpdate();
+  }
+
+  onWidthChange = (event: React.FormEvent<HTMLInputElement>): void => {
+    debugger;
+    let width = event.currentTarget.value;
+    this.setState({
+      width: width
+    });
+    this.creator.setSelectedElementWidth(Number(width));
+    this.uiUpdate();
+  }
+
+  onHeightChange = (event: React.FormEvent<HTMLInputElement>): void => {
+    debugger;
+    let height = event.currentTarget.value;
+    this.setState({
+      height: height
+    });
+    this.creator.setSelectedElementHeight(Number(height));
+    this.uiUpdate();
+  }
+
+  onRotationChange = (event: React.FormEvent<HTMLInputElement>): void => {
+    debugger;
+    let rotation = event.currentTarget.value;
+    this.setState({
+      rotation: rotation
+    });
+    this.creator.setSelectedElementRotation(Number(rotation));
+    this.uiUpdate();
+  }
+
+  onYChange = (event: React.FormEvent<HTMLInputElement>): void => {
+    let y = event.currentTarget.value;
+    this.setState({
+      y: y
+    });
+    this.creator.setSelectedElementY(Number(y));
+    this.uiUpdate();
+  }
+
   render(): React.ReactNode {
     return(
       <>
         <div className='flex flex-col'>
           <input 
             type='file' 
-            accept='.png'
+            
             onChange={this.onLoadFile}  
           ></input>
           <button 
@@ -99,11 +159,11 @@ class App extends React.PureComponent{
             Dodaj ramke
           </button>
           Właściwości obiektu:
-          <p>x: { this.state.selectedElementParams?.x }</p>
-          <p>y: { this.state.selectedElementParams?.y }</p>
-          <p>rotacja: { this.state.selectedElementParams?.rotation }</p>
-          <p>Wysokość: { this.state.selectedElementParams?.width }</p>
-          <p>Szerokość: { this.state.selectedElementParams?.height }</p>
+          <p>x: <input type='range' min='0' max='500' value={ this.state.x } onChange={this.onXChange}/></p>
+          <p>y: <input type='range' min='0' max='500' value={ this.state.y } onChange={this.onYChange}/></p>
+          <p>Wysokość: <input type='range' min='0' max='500' value={ this.state.width } onChange={this.onWidthChange}/></p>
+          <p>Szerokość: <input type='range' min='0' max='500' value={ this.state.height } onChange={this.onHeightChange}/></p>
+          <p>rotacja: <input type='range' min='-179' max='180' value={ this.state.rotation } onChange={this.onRotationChange}/></p>
         </div>
         <button 
           type='button'
@@ -140,7 +200,6 @@ class App extends React.PureComponent{
         <div className='flex flex-col'>
           Lista obiektów:
           { this.state.elements?.map((element: any) => {
-            debugger;
             return(
               <div
                 className={`${
