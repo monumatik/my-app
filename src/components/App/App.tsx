@@ -95,7 +95,6 @@ class App extends React.PureComponent{
   }
 
   onXChange = (event: React.FormEvent<HTMLInputElement>): void => {
-    debugger;
     let x = event.currentTarget.value;
     this.setState({
       x: x
@@ -105,7 +104,6 @@ class App extends React.PureComponent{
   }
 
   onWidthChange = (event: React.FormEvent<HTMLInputElement>): void => {
-    debugger;
     let width = event.currentTarget.value;
     this.setState({
       width: width
@@ -115,7 +113,6 @@ class App extends React.PureComponent{
   }
 
   onHeightChange = (event: React.FormEvent<HTMLInputElement>): void => {
-    debugger;
     let height = event.currentTarget.value;
     this.setState({
       height: height
@@ -125,7 +122,6 @@ class App extends React.PureComponent{
   }
 
   onRotationChange = (event: React.FormEvent<HTMLInputElement>): void => {
-    debugger;
     let rotation = event.currentTarget.value;
     this.setState({
       rotation: rotation
@@ -159,11 +155,11 @@ class App extends React.PureComponent{
             Dodaj ramke
           </button>
           Właściwości obiektu:
-          <p>x: <input type='range' min='0' max='500' value={ this.state.x } onChange={this.onXChange}/></p>
-          <p>y: <input type='range' min='0' max='500' value={ this.state.y } onChange={this.onYChange}/></p>
-          <p>Wysokość: <input type='range' min='0' max='500' value={ this.state.width } onChange={this.onWidthChange}/></p>
-          <p>Szerokość: <input type='range' min='0' max='500' value={ this.state.height } onChange={this.onHeightChange}/></p>
-          <p>rotacja: <input type='range' min='-179' max='180' value={ this.state.rotation } onChange={this.onRotationChange}/></p>
+          <p>x: <input type='range' min='-500' max='500' value={this.state.x} onChange={this.onXChange}/> - <input className='border border-purple-200' onChange={this.onXChange} type='number' min='-500' max='500' value={this.state.x}/></p>
+          <p>y: <input type='range' min='-500' max='500' value={ this.state.y } onChange={this.onYChange}/> - <input className='border border-purple-200' onChange={this.onYChange} type='number' min='-500' max='500' value={this.state.y}/></p>
+          <p>Szerokość: <input type='range' min='0' max='500' value={this.state.width} onChange={this.onWidthChange}/> - <input className='border border-purple-200' onChange={this.onWidthChange} type='number' min='0' max='500' value={this.state.width}/></p>
+          <p>Wysokość: <input type='range' min='0' max='500' value={ this.state.height } onChange={this.onHeightChange}/> - <input className='border border-purple-200' onChange={this.onHeightChange} type='number' min='0' max='500' value={this.state.height}/></p>
+          <p>rotacja: <input type='range' min='-180' max='180' value={ this.state.rotation } onChange={this.onRotationChange}/> - <input className='border border-purple-200' onChange={this.onRotationChange} type='number' min='-180' max='180' value={this.state.rotation}/></p>
         </div>
         <button 
           type='button'
