@@ -34,14 +34,15 @@ class App extends React.PureComponent{
     });
   }
 
-  onLoadFile = (arg: any) => {
+  onLoadFile = (event: any) => {
     let fileReader = new FileReader();
     fileReader.onload = async (arg) => {
       await this.creator.addImageLayer(arg.target?.result);
       this.uiUpdate();
+      event.target.value = null;
     };
-    if(arg.target.files.length)
-      fileReader.readAsDataURL(arg.target?.files[0]);
+    if(event.target.files.length)
+      fileReader.readAsDataURL(event.target?.files[0]);
   }
 
   onClickRectFrameAdd = (event: React.SyntheticEvent): void => {
@@ -139,27 +140,31 @@ class App extends React.PureComponent{
     this.uiUpdate();
   }
 
+  onClickClientPhoto = (event: React.FormEvent): void => {
+    this.creator.switchSelectedElementClientPhoto();
+    this.uiUpdate();
+  };
+
   render(): React.ReactNode {
     return(
       <>
         <div className='flex flex-col'>
-          <input 
-            type='file' 
-            
-            onChange={this.onLoadFile}  
+          <input
+            type='file'
+            onChange={this.onLoadFile}
           ></input>
-          <button 
+          {/* <button
             type='button'
             onClick={this.onClickRectFrameAdd}
             className="px-4 py-1 text-sm text-purple-600 font-semibold rounded-full border border-purple-200 hover:text-white hover:bg-purple-600 hover:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-offset-2">
             Dodaj ramke
-          </button>
+          </button> */}
           Właściwości obiektu:
           <p>x: <input type='range' min='-500' max='500' value={this.state.x} onChange={this.onXChange}/> - <input className='border border-purple-200' onChange={this.onXChange} type='number' min='-500' max='500' value={this.state.x}/></p>
           <p>y: <input type='range' min='-500' max='500' value={ this.state.y } onChange={this.onYChange}/> - <input className='border border-purple-200' onChange={this.onYChange} type='number' min='-500' max='500' value={this.state.y}/></p>
           <p>Szerokość: <input type='range' min='0' max='500' value={this.state.width} onChange={this.onWidthChange}/> - <input className='border border-purple-200' onChange={this.onWidthChange} type='number' min='0' max='500' value={this.state.width}/></p>
-          <p>Wysokość: <input type='range' min='0' max='500' value={ this.state.height } onChange={this.onHeightChange}/> - <input className='border border-purple-200' onChange={this.onHeightChange} type='number' min='0' max='500' value={this.state.height}/></p>
-          <p>rotacja: <input type='range' min='-180' max='180' value={ this.state.rotation } onChange={this.onRotationChange}/> - <input className='border border-purple-200' onChange={this.onRotationChange} type='number' min='-180' max='180' value={this.state.rotation}/></p>
+          <p>Wysokość: <input type='range' min='0' max='500' value={this.state.height} onChange={this.onHeightChange}/> - <input className='border border-purple-200' onChange={this.onHeightChange} type='number' min='0' max='500' value={this.state.height}/></p>
+          <p>rotacja: <input type='range' min='-180' max='180' value={this.state.rotation} onChange={this.onRotationChange}/> - <input className='border border-purple-200' onChange={this.onRotationChange} type='number' min='-180' max='180' value={this.state.rotation}/></p>
         </div>
         <button 
           type='button'
@@ -190,6 +195,12 @@ class App extends React.PureComponent{
           onClick={this.onClickDelete}
           className="px-4 py-1 text-sm text-purple-600 font-semibold rounded-full border border-purple-200 hover:text-white hover:bg-purple-600 hover:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-offset-2">
           Usuń
+        </button>
+        <button 
+          type='button'
+          onClick={this.onClickClientPhoto}
+          className={!this.state.selectedElementParams.replaceable ? "px-4 py-1 text-sm text-purple-600 font-semibold rounded-full border border-purple-200 hover:text-white hover:bg-purple-600 hover:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-offset-2" : "px-4 py-1 text-sm font-semibold rounded-full border bg-purple-600 border-purple-200 text-white ring-purple-600"}>
+          Klient moze podmienić
         </button>
         <br/>
         <br/>

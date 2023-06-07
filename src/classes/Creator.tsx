@@ -145,7 +145,15 @@ class Creator {
             y: this.selectedElement?.y(),
             rotation: this.selectedElement?.rotation(),
             draggable: this.selectedElement?.draggable(),
+            replaceable: this.selectedElement?.getAttr('clientPhoto')
         }
+    }
+
+    public switchSelectedElementClientPhoto = (): void => {
+        this.selectedElement?.setAttr(
+            'clientPhoto',
+            !this.selectedElement.getAttr('clientPhoto')
+        );
     }
 
     public setSelectedElementX = (x: number): void => {
