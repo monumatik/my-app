@@ -29,6 +29,9 @@ class App extends React.PureComponent{
       width: params.width,
       height: params.height,
       rotation: params.rotation,
+      fillX: params.fillX,
+      fillY: params.fillY,
+      fillScale: params.fillScale,
       selectedElementParams: params,
       elements: this.creator.getElementsList()
     });
@@ -97,46 +100,37 @@ class App extends React.PureComponent{
 
   onXChange = (event: React.FormEvent<HTMLInputElement>): void => {
     let x = event.currentTarget.value;
-    this.setState({
-      x: x
-    });
     this.creator.setSelectedElementX(Number(x));
     this.uiUpdate();
   }
 
   onWidthChange = (event: React.FormEvent<HTMLInputElement>): void => {
     let width = event.currentTarget.value;
-    this.setState({
-      width: width
-    });
     this.creator.setSelectedElementWidth(Number(width));
     this.uiUpdate();
   }
 
   onHeightChange = (event: React.FormEvent<HTMLInputElement>): void => {
     let height = event.currentTarget.value;
-    this.setState({
-      height: height
-    });
     this.creator.setSelectedElementHeight(Number(height));
     this.uiUpdate();
   }
 
   onRotationChange = (event: React.FormEvent<HTMLInputElement>): void => {
     let rotation = event.currentTarget.value;
-    this.setState({
-      rotation: rotation
-    });
     this.creator.setSelectedElementRotation(Number(rotation));
     this.uiUpdate();
   }
 
   onYChange = (event: React.FormEvent<HTMLInputElement>): void => {
     let y = event.currentTarget.value;
-    this.setState({
-      y: y
-    });
     this.creator.setSelectedElementY(Number(y));
+    this.uiUpdate();
+  }
+
+  onFillScaleChange = (event: React.FormEvent<HTMLInputElement>): void => {
+    let scale = event.currentTarget.value;
+    this.creator.setSelectedElementFillScale(Number(scale));
     this.uiUpdate();
   }
 
@@ -144,6 +138,18 @@ class App extends React.PureComponent{
     this.creator.switchSelectedElementClientPhoto();
     this.uiUpdate();
   };
+
+  onFillXChange = (event: React.FormEvent<HTMLInputElement>): void => {
+    let x = event.currentTarget.value;
+    this.creator.setSelectedElementFillX(Number(x));
+    this.uiUpdate();
+  }
+
+  onFillYChange = (event: React.FormEvent<HTMLInputElement>): void => {
+    let y = event.currentTarget.value;
+    this.creator.setSelectedElementFillY(Number(y));
+    this.uiUpdate();
+  }
 
   render(): React.ReactNode {
     return(
@@ -165,6 +171,9 @@ class App extends React.PureComponent{
           <p>Szerokość: <input type='range' min='0' max='500' value={this.state.width} onChange={this.onWidthChange}/> - <input className='border border-purple-200' onChange={this.onWidthChange} type='number' min='0' max='500' value={this.state.width}/></p>
           <p>Wysokość: <input type='range' min='0' max='500' value={this.state.height} onChange={this.onHeightChange}/> - <input className='border border-purple-200' onChange={this.onHeightChange} type='number' min='0' max='500' value={this.state.height}/></p>
           <p>rotacja: <input type='range' min='-180' max='180' value={this.state.rotation} onChange={this.onRotationChange}/> - <input className='border border-purple-200' onChange={this.onRotationChange} type='number' min='-180' max='180' value={this.state.rotation}/></p>
+          <p>Skala wypełnienia: <input type='range' step='0.01' min='-2' max='2' value={this.state.fillScale} onChange={this.onFillScaleChange}/> - <input className='border border-purple-200' onChange={this.onFillScaleChange} type='number' step='0.01' min='-2' max='2' value={this.state.fillScale}/></p>
+          <p>x wypełnienia: <input type='range' min='-500' max='500' value={this.state.fillX} onChange={this.onFillXChange}/> - <input className='border border-purple-200' onChange={this.onFillXChange} type='number' min='-500' max='500' value={this.state.fillX}/></p>
+          <p>y wypełnienia: <input type='range' min='-500' max='500' value={this.state.fillY} onChange={this.onFillYChange}/> - <input className='border border-purple-200' onChange={this.onFillYChange} type='number' min='-500' max='500' value={this.state.fillY}/></p>
         </div>
         <button 
           type='button'

@@ -18,7 +18,7 @@ class Creator {
 
     private stage: Konva.Stage;
     private selectedLayer: Konva.Layer | undefined = undefined;
-    private selectedElement: Konva.Node | Konva.Group | undefined = undefined;
+    private selectedElement: any = undefined;
     private uiUpdateInterface: Function;
 
     constructor(uiUpdateInterface: Function){
@@ -69,22 +69,42 @@ class Creator {
         return new Promise((resolve, reject) => {
             let imgHtml = new Image();
             imgHtml.onload = () => {
-                let scale = this.getImageScaleForFitToStage(imgHtml);
                 let group = this.getKonvaGroup();
                 let image = new Konva.Image({
-                    scaleX: scale,
-                    scaleY: scale,
-                    image: imgHtml,
-                    draggable: true
+                    image: new Image(),
+                    width: 100,
+                    height: 100,
+                    draggable: true,
+                    fillPatternRepeat: 'no-repeat',
+                    fillPatternScaleX: 1,
+                    fillPatternScaleY: 1,
+                    fillPatternOffsetX: 0,
+                    fillPatternOffsetY: 0
                 });
                 let konvaTransformer = this.getKonvaTransformer(true);
                 image.setAttr('src', src);
                 image.setAttr('label', '');
                 image.setAttr('clientPhoto', false);
+                image.setAttr('fillPatternScaleValX', 1);
+                image.setAttr('fillPatternScaleValY', 1);
+                image.setAttr('fillPatternScaleUI', 1);
+                image.setAttr('fillPatternScaleTemp', 1);
+                image.fillPatternImage(imgHtml);
                 this.selectedElement = image;
                 group.add(image);
                 group.add(konvaTransformer);
                 konvaTransformer.nodes([image]);
+                konvaTransformer.on('transformstart transform', (e: any) => {
+                    e.target.fillPatternScaleX(
+                        1/e.target.getScaleX()*e.target.getAttr('fillPatternScaleUI')
+                    );
+                    e.target.fillPatternScaleY(
+                        1/e.target.getScaleY()*e.target.getAttr('fillPatternScaleUI')
+                    );
+                    e.target.setAttr('fillPatternScaleValX', 1/e.target.getScaleX());
+                    e.target.setAttr('fillPatternScaleValY', 1/e.target.getScaleY());
+                    
+                });
                 this.selectedLayer?.add(group);
                 group.moveToTop();
                 this.addShapeOnClickEvent(image);
@@ -99,11 +119,30 @@ class Creator {
 
     }
 
+    public setSelectedElementFillScale = (scale: number): void => {
+        this.selectedElement.fillPatternScaleX(
+            scale * this.selectedElement.getAttr('fillPatternScaleValX')
+        );
+        this.selectedElement.fillPatternScaleY(
+            scale * this.selectedElement.getAttr('fillPatternScaleValY')
+        );
+    
+        this.selectedElement.setAttr('fillPatternScaleUI', scale);
+    }
+
     private getImageScaleForFitToStage = (imageHtml: HTMLImageElement): number => {
         if(imageHtml.width >= imageHtml.height)
             return (this.stage.width()/this.stage.scaleX()) / imageHtml.width;
         else
             return (this.stage.height()/this.stage.scaleY()) / imageHtml.height;
+    }
+
+    public setSelectedElementFillX = (x: number): void => {
+        this.selectedElement.fillPatternOffsetX(x*-1);
+    }
+
+    public setSelectedElementFillY = (y: number): void => {
+        this.selectedElement.fillPatternOffsetY(y*-1);
     }
 
     public fitSelectedElementToStage = (): void => {
@@ -122,9 +161,12 @@ class Creator {
     public lockElement = (elementId: number | string): void => {
         let element: any = this.selectedLayer?.findOne(`#${elementId.toString()}`);
         if(element){
+            element.listening(!element.listening());
+            element.draggable(!element.draggable());
             let shapeChild = element.findOne('Shape');
             shapeChild.draggable(!shapeChild.draggable());
             let transformerChild = element.findOne('Transformer');
+            transformerChild.draggable(!transformerChild.draggable());
             transformerChild.resizeEnabled(!transformerChild.resizeEnabled());
             transformerChild.rotateEnabled(!transformerChild.rotateEnabled());
         }
@@ -145,7 +187,10 @@ class Creator {
             y: this.selectedElement?.y(),
             rotation: this.selectedElement?.rotation(),
             draggable: this.selectedElement?.draggable(),
-            replaceable: this.selectedElement?.getAttr('clientPhoto')
+            replaceable: this.selectedElement?.getAttr('clientPhoto'),
+            fillScale: this.selectedElement?.getAttr('fillPatternScaleUI'),
+            fillX: this.selectedElement?.fillPatternOffsetX()*-1,
+            fillY: this.selectedElement?.fillPatternOffsetY()*-1
         }
     }
 
@@ -205,7 +250,7 @@ class Creator {
             strokeScaleEnabled: false,
             shadowEnabled: false,
         });
-        rectangle.skewX(0);
+        rectangle.skewX(0.1);
         rectangle.setAttr('label', '');
         let konvaTransformer = this.getKonvaTransformer(false);
         this.selectedElement = rectangle;
@@ -272,7 +317,7 @@ class Creator {
     }
 
     private getKonvaGroup(): Konva.Group {
-        return new Konva.Group({id: Math.floor(100000 + Math.random() * 900000).toString()});
+        return new Konva.Group({id: Math.floor(100000 + Math.random() * 900000).toString(), width: 100, height: 100});
     }
 
     private addShapeOnClickEvent(shape: Konva.Shape): void{
